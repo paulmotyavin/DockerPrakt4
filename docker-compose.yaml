@@ -1,0 +1,40 @@
+version: '3'
+
+services:
+  postgres:
+    restart: always
+    container_name: postgres
+    image: postgres
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=1
+      - POSTGRES_DB=praktAPI
+    volumes:
+      - postgres_data:/var/lib/postgresql
+
+  api:
+    container_name: api
+    build:
+      context: ./praktAPI
+      dockerfile: Dockerfile
+    ports:
+      - "8088:8088"
+    depends_on:
+      - postgres
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/praktAPI
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=1
+
+  client:
+    container_name: client
+    build:
+      context: ./Praktika
+      dockerfile: Dockerfile
+    ports:
+      - "8081:8081"
+    depends_on:
+      - api
+
+volumes:
+  postgres_data:
